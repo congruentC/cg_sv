@@ -21,6 +21,7 @@ typedef struct {
 
 // Returns a view into s. Does not copy or allocate.
 // s must outlive the returned view.
+// Passing a NULL pointer is not a valid input.
 cgsv cgsv_from_cstr(const char *s);
 
 
@@ -32,6 +33,7 @@ int cgsv_eq(cgsv a, cgsv b);
 
 // Check if sv starts or ends with another view.
 // Returns 1 if so, 0 otherwise.
+// NULL pointer handling left to caller's responsibility.
 int cgsv_starts_with(cgsv sv, cgsv prefix);
 int cgsv_ends_with(cgsv sv, cgsv suffix);
 
@@ -152,12 +154,18 @@ cgsv cgsv_take_right(cgsv sv, size_t n){
 }
 
 cgsv cgsv_chop(cgsv sv, size_t n){
-    sv = cgsv_take_right(sv, n);
+    if (n > sv.len){
+        n = sv.len;
+    }
+    sv = cgsv_take_right(sv, sv.len - n);
     return sv;
 }
 
 cgsv cgsv_chop_right(cgsv sv, size_t n){
-    sv = cgsv_take(sv, n);
+    if (n > sv.len){
+        n = sv.len;
+    }
+    sv = cgsv_take(sv, sv.len - n);
     return sv;
 }
 
@@ -174,7 +182,7 @@ ptrdiff_t cgsv_find_c(cgsv sv, char c){
 
 
 int cgsv_contains(cgsv sv, cgsv needle){
-    if (needle.len > sv.len){
+    if (needle.len > sv.len || needle.len == 0){
         return 0;
     }
     size_t limit = sv.len - needle.len;
