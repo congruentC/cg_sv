@@ -1,0 +1,4 @@
+-std=c11
+-I/usr/include
+-I/usr/lib/llvm-18/lib/clang/18/include
+-DCGSV_IMPLEMENTATION
